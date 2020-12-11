@@ -8,11 +8,16 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"net"
 	"net/http"
 	"os"
+	"time"
 
 	"cloud.google.com/go/compute/metadata"
 	"cloud.google.com/go/datastore"
+
+	"github.com/coreos/go-systemd/v22/activation"
+	"github.com/wmark/idletracker"
 )
 
 var log = newStdLogger()
@@ -58,17 +63,48 @@ func main() {
 		os.Setenv("SANDBOX_BACKEND_URL", *backendURL)
 	}
 
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8080"
+	ctx, cancelFn := context.WithCancel(context.Background())
+	defer cancelFn()
+	server := &http.Server{
+		Handler: s,
+	}
+
+	var ln net.Listener
+	if _, socketActivated := os.LookupEnv("LISTEN_FDS"); socketActivated {
+		listeners, err := activation.Listeners()
+		if len(listeners) < 1 || err != nil {
+			log.Fatalf("Socket activated, but without any listener. Err: %v", err)
+		}
+		ln = listeners[0]
+
+		lingerCtx := idletracker.NewIdleTracker(ctx, 15*time.Minute)
+		go func() {
+			<-lingerCtx.Done()
+			tearDownCtx, _ := context.WithTimeout(ctx, 10*time.Second)
+			server.Shutdown(tearDownCtx)
+		}()
+		server.ConnState = lingerCtx.ConnState
+	} else {
+		port := os.Getenv("PORT")
+		if port == "" {
+			port = "8080"
+		}
+
+		listener, err := net.Listen("tcp", ":"+port)
+		if err != nil {
+			log.Fatalf("net.Listen %s: %v", ":"+port, err)
+		}
+		log.Printf("Listening on: %v ...", port)
+		ln = listener
 	}
 
 	// Get the backend dialer warmed up. This starts
 	// RegionInstanceGroupDialer queries and health checks.
 	go sandboxBackendClient()
 
-	log.Printf("Listening on :%v ...", port)
-	log.Fatalf("Error listening on :%v: %v", port, http.ListenAndServe(":"+port, s))
+	if err := server.Serve(ln); err != nil && err != http.ErrServerClosed {
+		log.Fatalf("ListenAndServe: %v", err)
+	}
 }
 
 func projectID() string {

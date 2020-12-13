@@ -466,10 +466,16 @@ func sandboxBuild(ctx context.Context, tmpDir string, in []byte, vet bool) (*bui
 
 	br.exePath = filepath.Join(tmpDir, "a.out")
 	goCache := filepath.Join(tmpDir, "gocache")
+	if assigned, ok := os.LookupEnv("CACHE_DIRECTORY"); ok && assigned != "" {
+		goCache = assigned
+	}
 
-	cmd := exec.Command("/usr/local/go-faketime/bin/go", "build", "-o", br.exePath, "-tags=faketime")
+	cmd := exec.Command("go", "build", "-o", br.exePath, "-tags=faketime")
 	cmd.Dir = tmpDir
-	cmd.Env = []string{"GOOS=linux", "GOARCH=amd64", "GOROOT=/usr/local/go-faketime"}
+	cmd.Env = []string{}
+	if assigned, ok := os.LookupEnv("STATE_DIRECTORY"); ok && assigned != "" {
+		cmd.Env = append(cmd.Env, "GOMODCACHE="+assigned)
+	}
 	cmd.Env = append(cmd.Env, "GOCACHE="+goCache)
 	if br.useModules {
 		// Create a GOPATH just for modules to be downloaded
@@ -486,7 +492,7 @@ func sandboxBuild(ctx context.Context, tmpDir string, in []byte, vet bool) (*bui
 		cmd.Env = append(cmd.Env, "GO111MODULE=off") // in case it becomes on by default later
 	}
 	cmd.Args = append(cmd.Args, buildPkgArg)
-	cmd.Env = append(cmd.Env, "GOPATH="+br.goPath)
+	cmd.Env = append(cmd.Env, "GOPATH="+br.goPath+":/usr/share/gocode")
 	out := &bytes.Buffer{}
 	cmd.Stderr, cmd.Stdout = out, out
 

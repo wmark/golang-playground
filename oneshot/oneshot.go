@@ -21,7 +21,7 @@ import (
 	"golang.org/x/playground/sandbox/sandboxtypes"
 
 	"github.com/coreos/go-systemd/v22/activation"
-	"github.com/wmark/idletracker"
+	netutil "github.com/wmark/go.netutil"
 )
 
 // The default webserver address that will be used in case
@@ -80,7 +80,7 @@ func launchHTTPEndpoint(ctx context.Context, fallbackAddr string) {
 			log.Fatalf("Socket activated, but not been given any FD")
 		}
 
-		listener, err := OneConnection(fds[0])
+		listener, err := netutil.AcceptedConnection(fds[0])
 		if err != nil {
 			log.Fatalf("Unable to convert the given FD to a Listener. Err: %v", err)
 		}
@@ -94,7 +94,7 @@ func launchHTTPEndpoint(ctx context.Context, fallbackAddr string) {
 		ln = listener
 	}
 
-	lingerCtx := idletracker.NewIdleTracker(ephemeralServerCtx, 15*time.Minute)
+	lingerCtx := netutil.NewIdleTracker(ephemeralServerCtx, 0)
 	go func() {
 		<-lingerCtx.Done()
 		tearDownCtx, _ := context.WithTimeout(ctx, 10*time.Second)
@@ -124,6 +124,7 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func runHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Connection", "close")
 	// Adapted from sandbox/sandbox.go
 	if r.Method != "POST" {
 		http.Error(w, "expected a POST", http.StatusBadRequest)

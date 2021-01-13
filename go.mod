@@ -11,7 +11,7 @@ require (
 	github.com/bradfitz/gomemcache v0.0.0-20190329173943-551aad21a668
 	github.com/coreos/go-systemd/v22 v22.1.0
 	github.com/google/go-cmp v0.4.0
-	github.com/wmark/idletracker v1.0.0
+	github.com/wmark/go.netutil v1.0.0
 	go.opencensus.io v0.22.3
 	golang.org/x/build v0.0.0-20190709001953-30c0e6b89ea0
 	golang.org/x/mod v0.2.0

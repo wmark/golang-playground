@@ -17,7 +17,7 @@ import (
 	"cloud.google.com/go/datastore"
 
 	"github.com/coreos/go-systemd/v22/activation"
-	"github.com/wmark/idletracker"
+	netutil "github.com/wmark/go.netutil"
 )
 
 var log = newStdLogger()
@@ -77,7 +77,7 @@ func main() {
 		}
 		ln = listeners[0]
 
-		lingerCtx := idletracker.NewIdleTracker(ctx, 15*time.Minute)
+		lingerCtx := netutil.NewIdleTracker(ctx, 45*time.Minute)
 		go func() {
 			<-lingerCtx.Done()
 			tearDownCtx, _ := context.WithTimeout(ctx, 10*time.Second)

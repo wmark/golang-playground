@@ -154,8 +154,8 @@ github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+
 github.com/stretchr/testify v1.4.0 h1:2E4SXV/wtOkTonXsotYi4li6zVWxYlZuYNCXe9XRJyk=
 github.com/stretchr/testify v1.4.0/go.mod h1:j7eGeouHqKxXV5pUuKE4zz7dFj8WfuZ+81PSLYec5m4=
 github.com/tarm/serial v0.0.0-20180830185346-98f6abe2eb07/go.mod h1:kDXzergiv9cbyO7IOYJZWg1U88JhDg3PB6klq9Hg2pA=
-github.com/wmark/idletracker v1.0.0 h1:fKjIC+k9ZP61kwcdQa4pAZrrNNX3tGbax9pdj6u9+XQ=
-github.com/wmark/idletracker v1.0.0/go.mod h1:cKlBUiiLWlQvw5iOqYlAmmQ7B4e5Rwn3wnbsibYJ8HI=
+github.com/wmark/go.netutil v1.0.0 h1:X4lxzvBM1Ls67y8U3JonwD7P1NaElLDvbFNb2xPowms=
+github.com/wmark/go.netutil v1.0.0/go.mod h1:/7C3W5lDwf58RuRvymDv0B0AUacOae3t4qtd9BzEdKk=
 github.com/yuin/goldmark v1.1.27/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 go.opencensus.io v0.21.0 h1:mU6zScU4U1YAFPHEHYk+3JC4SY7JxgkqS10ZOSyksNg=
 go.opencensus.io v0.21.0/go.mod h1:mSImk1erAIZhrmZN+AvHh14ztQfjbGwt4TtuofqLduU=
